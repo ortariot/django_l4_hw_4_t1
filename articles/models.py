@@ -1,8 +1,8 @@
 from django.db import models
-
+from django.db.models import F
 
 class Tag(models.Model):
-    name = models.CharField(max_length=255, )
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -44,3 +44,4 @@ class Scopeship(models.Model):
     class Meta:
         verbose_name = 'Тематика статьи'
         verbose_name_plural = 'Тематики Статьи'
+        ordering = ['-is_main', 'tag__name']
