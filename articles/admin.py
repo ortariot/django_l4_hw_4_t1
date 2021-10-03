@@ -7,16 +7,14 @@ from .models import Article, Scopeship, Tag
 
 class ScopeshipInlineFormset(BaseInlineFormSet):
     def clean(self):
+        is_main_count = 0
         for form in self.forms:
-            # В form.cleaned_data будет словарь с данными
-            # каждой отдельной формы, которые вы можете проверить
-            print('__1__')
-            print(form)
-            form.cleaned_data
-            # вызовом исключения ValidationError можно указать админке о наличие ошибки
-            # таким образом объект не будет сохранен,
-            # а пользователю выведется соответствующее сообщение об ошибке
-            raise ValidationError('Тут всегда ошибка')
+            is_main_count += 1 if form.cleaned_data.get('is_main') else 0
+        if is_main_count == 0:
+            raise ValidationError('Укажите основной раздел')
+        elif is_main_count > 1:
+            raise ValidationError('Основным может быть только один раздел')
+
         return super().clean()  # вызываем базовый код переопределяемого метода
 
 
@@ -24,9 +22,11 @@ class ScopeshipInline(admin.TabularInline):
     model = Scopeship
     formset = ScopeshipInlineFormset
 
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ScopeshipInline]
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
